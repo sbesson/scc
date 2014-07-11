@@ -54,9 +54,12 @@ class RebaseTest(SandboxTest):
     def has_rebased_pr(self):
 
         # Check the last opened PR is the rebased one
-        prs = self.sandbox.origin.get_pulls()
-        return prs[0].head.user.login == self.user and \
-            prs[0].head.ref == self.target_branch
+        pulls = self.sandbox.origin.get_pulls()
+        for pull in pulls:
+            if pull.head.user.login == self.user and \
+                    pull.head.ref == self.target_branch:
+                return True
+        return False
 
     def teardown_method(self, method):
 
