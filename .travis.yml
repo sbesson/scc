@@ -7,9 +7,9 @@ python:
   - "2.7"
   - "2.7_with_system_site_packages"
 before_install:
-  - pip install -r requirements.txt
-  - pip install flake8
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install argparse; fi
+  - travis_retry pip install -r requirements.txt
+  - travis_retry pip install flake8
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then travis_retry pip install argparse; fi
   - git config --global github.token 3bc7fc530b01081559eb911f59ccfec7f4fb2592
   - git config --global user.email snoopycrimecop@gmail.com
   - git config --global user.name 'Snoopy Crime Cop'
