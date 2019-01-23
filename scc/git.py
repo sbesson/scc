@@ -1932,7 +1932,8 @@ class GitRepository(object):
         remotes = {}
         for user, repo in self.unique_logins():
             key = "merge_%s" % user
-            if repo.private:
+            # Unclear why this may not be present in some cases
+            if hasattr(repo, "private") and repo.private:
                 url = repo.ssh_url
             else:
                 url = repo.git_url
