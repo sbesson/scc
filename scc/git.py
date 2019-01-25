@@ -1010,7 +1010,7 @@ class GitHubRepository(object):
             remote = fork.split('/')[0]
             self.candidate_branches[remote] = (
                 self.gh.get_repo(fork), [b for b in filters["include"][fork]
-                                         if not re.match('#\d+$', b)])
+                                         if not re.match(r'#\d+$', b)])
 
 
 class GitRepository(object):
@@ -1870,7 +1870,7 @@ class GitRepository(object):
 
         try:
             version = self.communicate("git", "describe")
-            prefix = re.split('\d', version)[0]
+            prefix = re.split(r'\d', version)[0]
         except Exception:
             # If no tag is present on the branch, git describe fails
             prefix = ""
@@ -2013,9 +2013,9 @@ class GitHubCommand(Command):
     def __init__(self, sub_parsers, **kwargs):
         super(GitHubCommand, self).__init__(sub_parsers, **kwargs)
 
-        sha1_chars = "^([0-9a-f]+)\s"
+        sha1_chars = r"^([0-9a-f]+)\s"
         self.pr_pattern = re.compile(sha1_chars +
-                                     "Merge\spull\srequest\s.(\d+)\s(.*)$")
+                                     r"Merge\spull\srequest\s.(\d+)\s(.*)$")
         self.commit_pattern = re.compile(sha1_chars + "(.*)$")
         self.add_token_args()
         self.parser.add_argument(
@@ -3856,7 +3856,7 @@ class _TagCommands(GitRepoCommand):
     def check_version_format(self, args):
         """Check format of version number"""
 
-        pattern = '^[0-9]+[\.][0-9]+[\.][0-9]+(\-.+)*$'
+        pattern = r'^[0-9]+[\.][0-9]+[\.][0-9]+(\-.+)*$'
         return re.match(pattern, args.version) is not None
 
 
