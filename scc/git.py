@@ -1931,9 +1931,11 @@ class GitRepository(object):
         """Return remotes associated to unique login."""
         remotes = {}
         for user, repo in self.unique_logins():
+            if repo is None:
+                self.log.warn("Repository missing: %s", user)
+                continue
             key = "merge_%s" % user
-            # Unclear why this may not be present in some cases
-            if hasattr(repo, "private") and repo.private:
+            if repo.private:
                 url = repo.ssh_url
             else:
                 url = repo.git_url
