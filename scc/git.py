@@ -2965,6 +2965,9 @@ class ExternalIssues(GitHubCommand):
         super(ExternalIssues, self).__init__(sub_parsers)
 
         self.parser.add_argument(
+            '--no-labels', action="store_true", default=False,
+            help="filter issues which have had labels applied")
+        self.parser.add_argument(
             'orgs', nargs="+",
             help="organizations that should be checked")
 
@@ -2976,6 +2979,8 @@ class ExternalIssues(GitHubCommand):
             query += " is:issue"
             query += " user:%s" % org
             query += " archived:false"
+            if args.no_labels:
+                query += " no:label"
             org = self.gh.get_organization(org)
             for m in org.get_members():
                 query += " -author:%s" % m.login
