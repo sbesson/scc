@@ -23,3 +23,10 @@ script:
   - pip install dist/*.tar.gz
   - scc version
   - scc -h
+
+deploy:
+  provider: pypi
+  user: $PYPI_USER
+  password: $PYPI_PASSWORD
+  on:
+    tags: true
