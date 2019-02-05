@@ -2618,7 +2618,7 @@ command.
             "--pretty=%%h %%s %%ar %s %%N %s" % (middle_marker, end_marker),
             "--first-parent", merge_range]
         if git_version() > (2, 7, 6):
-                cmd += ["--notes=%s" % git_notes_ref]
+            cmd += ["--notes=%s" % git_notes_ref]
         out = repo.communicate(*cmd)
 
         # List PRs without seealso notes
