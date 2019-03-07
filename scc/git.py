@@ -2096,6 +2096,9 @@ class GitRepoCommand(GitHubCommand):
         self.parser.add_argument(
             '--reset', action='store_true',
             help='Reset the current branch to its HEAD')
+        self.parser.add_argument(
+            '--repository-config',
+            help='Repository configuration file (YAML)')
         self.add_remote_arg()
 
     def init_main_repo(self, args):
@@ -3167,9 +3170,6 @@ class Merge(FilteredPullRequestsCommand):
             '--set-commit-status', action='store_true',
             help='Set success/failure status on latest commits in all PRs '
             'in the merge.')
-        self.parser.add_argument(
-            '--repository-config',
-            help='Repository configuration file (YAML)')
         self.add_new_commit_args()
 
     def get_action(self):
