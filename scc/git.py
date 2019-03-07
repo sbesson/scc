@@ -531,7 +531,7 @@ class PullRequest(object):
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        return "  # PR %s %s '%s'" % (self.get_number(), self.get_login(),
+        return "  - PR %s %s '%s'" % (self.get_number(), self.get_login(),
                                       self.get_title())
 
     @retry_on_error(retries=SCC_RETRIES)
