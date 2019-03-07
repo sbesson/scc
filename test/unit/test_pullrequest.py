@@ -111,7 +111,7 @@ class TestPullRequest(MoxTestBase):
         self.statuses.append(status)
 
     def get_unicode(self):
-        return u"  # PR %s %s '%s'" % (
+        return u"  - PR %s %s '%s'" % (
             self.pull.number, self.pr_user.login, self.pull.title)
 
     def test_get_user(self):
