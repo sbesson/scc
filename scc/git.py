@@ -531,7 +531,7 @@ class PullRequest(object):
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        return "  # PR %s %s '%s'" % (self.get_number(), self.get_login(),
+        return "  - PR %s %s '%s'" % (self.get_number(), self.get_login(),
                                       self.get_title())
 
     @retry_on_error(retries=SCC_RETRIES)
@@ -2096,6 +2096,9 @@ class GitRepoCommand(GitHubCommand):
         self.parser.add_argument(
             '--reset', action='store_true',
             help='Reset the current branch to its HEAD')
+        self.parser.add_argument(
+            '--repository-config',
+            help='Repository configuration file (YAML)')
         self.add_remote_arg()
 
     def init_main_repo(self, args):
@@ -3167,9 +3170,6 @@ class Merge(FilteredPullRequestsCommand):
             '--set-commit-status', action='store_true',
             help='Set success/failure status on latest commits in all PRs '
             'in the merge.')
-        self.parser.add_argument(
-            '--repository-config',
-            help='Repository configuration file (YAML)')
         self.add_new_commit_args()
 
     def get_action(self):
