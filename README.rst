@@ -93,9 +93,6 @@ Once this is set up, the integration tests can be run by calling::
 
   python setupy.py test -s test/integration
 
-Integration tests are run daily on the OME Continuous Integration
-infrastructure under the SCC-self-merge_ job using the token-authenticated
-`snoopycrimecop user <https://github.com/snoopycrimecop>`_
 
 License
 -------
@@ -107,17 +104,16 @@ Copyright
 
 2012-2016, The Open Microscopy Environment
 
-.. _SCC-self-merge: http://hudson.openmicroscopy.org.uk/view/Mgmt/job/SCC-self-merge/
-.. _PyGithub: https://github.com/jacquev6/PyGithub
+.. _PyGithub: https://github.com/PyGithub/PyGithub
 .. _argparse: http://pypi.python.org/pypi/argparse
 .. _pep8: https://pypi.python.org/pypi/pep8
 .. _flake8: https://pypi.python.org/pypi/flake8
-.. _snoopys-sandbox: https://github.com/openmicroscopy/snoopys-sandbox
-.. _snoopys-sandbox-2: https://github.com/openmicroscopy/snoopys-sandbox-2
-.. _Travis: http://travis-ci.org/openmicroscopy/snoopycrimecop
+.. _snoopys-sandbox: https://github.com/ome/snoopys-sandbox
+.. _snoopys-sandbox-2: https://github.com/ome/snoopys-sandbox-2
+.. _Travis: https://travis-ci.org/ome/snoopycrimecop
 
-.. |Build Status| image:: https://travis-ci.org/openmicroscopy/snoopycrimecop.png
-   :target: http://travis-ci.org/openmicroscopy/snoopycrimecop
+.. |Build Status| image:: https://travis-ci.org/ome/snoopycrimecop.png
+   :target: https://travis-ci.org/ome/snoopycrimecop
 
 .. |Pypi| image:: https://badge.fury.io/py/scc.svg
     :target: https://badge.fury.io/py/scc

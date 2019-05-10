@@ -28,7 +28,7 @@ import tempfile
 from scc.git import get_github, get_token_or_user
 from subprocess import Popen
 
-sandbox_url = "https://github.com/openmicroscopy/snoopys-sandbox.git"
+sandbox_url = "https://github.com/ome/snoopys-sandbox.git"
 
 
 class SandboxTest(object):

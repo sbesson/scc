@@ -106,7 +106,7 @@ setup(name='scc',
       author_email='ome-devel@lists.openmicroscopy.org.uk',
       description='OME tools for managing the git(hub) workflow',
       license='GPLv2',
-      url='https://github.com/openmicroscopy/snoopycrimecop',
+      url='https://github.com/ome/snoopycrimecop',
 
       # More complex variables
       packages=['scc'],
