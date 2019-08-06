@@ -2175,7 +2175,7 @@ def get_default_filters(default):
         filters["include"] = {"user": ["#all"]}
         filters["exclude"] = {}
     else:
-        raise "Default %s non-defined"
+        raise Exception("Default %s non-defined")
     return filters
 
 
