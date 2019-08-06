@@ -19,9 +19,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
+from builtins import object
 from scc.git import GitRepository
 import pytest
-from Mock import MoxTestBase
+from .Mock import MoxTestBase
 
 import logging
 import subprocess

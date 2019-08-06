@@ -19,6 +19,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 import uuid
 import shutil
@@ -96,7 +99,7 @@ class SandboxTest(object):
 
         self.sandbox.new_branch(name, head=head)
 
-        for n in xrange(len(commits)):
+        for n in range(len(commits)):
             fname, txt = commits[n]
             fname = os.path.join(self.path, fname)
             with open(fname, 'w') as f:

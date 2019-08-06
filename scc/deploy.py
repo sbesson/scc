@@ -19,6 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import print_function
 import os
 import sys
 from yaclifw.framework import Command, Stop
@@ -109,13 +110,13 @@ class Deploy(Command):
         self.dbg("Copying %s/* to %s/*", src, dst)
         try:
             shutil.copytree(src, dst)
-        except shutil.Error, e:
+        except shutil.Error as e:
             for src, dst, error in e.args[0]:
                 if os.path.islink(src):
-                    print >> sys.stderr, "Could not copy symbolic link %s" \
-                        % src
+                    print("Could not copy symbolic link %s" \
+                        % src, file=sys.stderr)
                 else:
-                    print >> sys.stderr, "Could not copy %s" % src
+                    print("Could not copy %s" % src, file=sys.stderr)
 
     def rmtree(self, src):
         import shutil
