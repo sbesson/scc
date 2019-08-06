@@ -3365,6 +3365,27 @@ class MilestoneCommand(GitRepoCommand):
                 self.log.info('Closed milestone %s' % args.title)
 
 
+class PushCommand(GitRepoCommand):
+    """
+    Push a branch to a repository and its submodules.
+    """
+
+    NAME = "push"
+
+    def __init__(self, sub_parsers):
+        super(PushCommand, self).__init__(sub_parsers)
+        self.parser.add_argument(
+            'push', type=str,
+            help='Name of the branch to use to recursively push'
+            ' the merged branch to GitHub')
+
+    def __call__(self, args):
+        super(PushCommand, self).__call__(args)
+        self.login(args)
+        self.init_main_repo(args)
+        self.push(args, self.main_repo)
+
+
 class Rebase(GitRepoCommand):
     """Rebase Pull Requests opened against a specific base branch.
 
