@@ -3310,10 +3310,10 @@ class MilestoneCommand(GitRepoCommand):
                              "%-3s (%s)" % (m.open_issues, m.closed_issues)))
 
     def check_write_permissions(self, repos):
-        permissions = [repo.origin.permissions.push for repo in repos]
-        if not all(permissions):
-            raise Stop(4, '%s: User %s cannot edit milestones'
-                       % (repo.origin, self.gh.get_login()))
+        for repo in repos:
+            if not repo.origin.permissions.push:
+                raise Stop(4, '%s: User %s cannot edit milestones' %
+                           (repo.origin, self.gh.get_login()))
 
     def format_milestone_properties(self, args):
 
