@@ -129,7 +129,6 @@ class TestPullRequest(MoxTestBase):
         self.pull.title = title
         self.pr_user.login = user
         assert str(self.pr) == self.get_unicode()
-        assert str(self.pr) == self.get_unicode().encode("utf-8")
 
     def test_edit_body(self):
         self.pull.edit("new_body")
