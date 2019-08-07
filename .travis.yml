@@ -17,8 +17,7 @@ before_install:
   - pip install flake8
 
 before_script:
-# TODO: Reenable or switch to black autoformatter
-#  - flake8 -v .
+  - flake8 -v .
 
 script:
   - python setup.py test -t test/unit -v
