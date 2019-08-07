@@ -52,10 +52,12 @@ try:
     try:
         github.GithubException(0, "test")
     except AttributeError:
-        print("Conflicting github module. Uninstall PyGithub3", file=sys.stderr)
+        print("Conflicting github module. Uninstall PyGithub3",
+              file=sys.stderr)
         github_loaded = False
-except ImportError as ie:
-    print("Module github missing. Install via 'pip install PyGithub'", file=sys.stderr)
+except ImportError:
+    print("Module github missing. Install via 'pip install PyGithub'",
+          file=sys.stderr)
     github_loaded = False
 
 # Read Jenkins environment variables
@@ -1050,8 +1052,8 @@ class GitRepository(object):
            isinstance(self.repository_config, six.string_types):
             self.dbg("Reading repository configuration from %s" %
                      (repository_config))
-            self.repository_config = yaml.load(file(self.repository_config,
-                                                    'rb').read())
+            with open(self.repository_config) as fh:
+                self.repository_config = yaml.load(fh)
         if self.repository_config is not None:
             self.dbg("Repository configuration:\n%s" %
                      (yaml.dump(self.repository_config)))
@@ -1969,7 +1971,8 @@ class GitRepository(object):
                 try:
                     self.call("git", "remote", "rm", merge_remote)
                 except Exception:
-                    self.log.error("Failed to remove", key, exc_info=1)
+                    self.log.error(
+                        "Failed to remove", merge_remote, exc_info=1)
 
     def rpush(self, branch_name, remote, force=False):
         """Recursively push a branch to remotes across submodules"""
@@ -2240,7 +2243,8 @@ ALL sets user:#all as the default include filter. Default: ORG.""")
                 if key in key_value_map:
                     key_desc = key_value_map[key][0] % ftype_desc[ftype]
                     value_map = key_value_map[key][1]
-                    values_desc = list(map(value_map, self.filters[ftype][key]))
+                    values_desc = list(map(
+                        value_map, self.filters[ftype][key]))
                 else:
                     key_desc = "%s %s Branches(s)/Pull Request(s)" % (
                         ftype_desc[ftype], key)
@@ -2495,8 +2499,8 @@ Usage:
         if milestone and (milestone_title != milestone.title):
             try:
                 pr.get_issue().edit(milestone=milestone)
-                print("Set milestone for PR %s to %s" \
-                    % (pr.number, milestone.title))
+                print("Set milestone for PR %s to %s" %
+                      (pr.number, milestone.title))
             except github.GithubException as ge:
                 if self.gh.exc_is_not_found(ge):
                     raise Stop(10, "Can't edit milestone")
@@ -2598,8 +2602,8 @@ command.
                     comments = ", ".join(['--rebased'+x for x in m[key]])
                     if key in self.rebasedprs:
                         self.rebasedprs.remove(key)
-                    print("  # PR %s: expected '%s' comment(s)" %  \
-                        (key, comments))
+                    print("  # PR %s: expected '%s' comment(s)" %
+                          (key, comments))
                 mismatch_count = len(list(m.keys()))
         else:
             mismatch_count = 0
@@ -2694,8 +2698,8 @@ command.
                     print(pr, file=f)
             else:
                 print("*"*100)
-                print("PRs on %s without note/comment for %s" \
-                    % (source_branch, target_branch))
+                print("PRs on %s without note/comment for %s" %
+                      (source_branch, target_branch))
                 print("*"*100)
                 for pr in unrebased_prs:
                     print(pr)
@@ -3146,9 +3150,9 @@ class Rate(GitHubCommand):
 
         for key in rates:
             if rates[key]:
-                print ("%s: %s remaining from %s. Reset at %s" %
-                       (key, rates[key].remaining, rates[key].limit,
-                        rates[key].reset.strftime("%H:%m")))
+                print("%s: %s remaining from %s. Reset at %s" %
+                      (key, rates[key].remaining, rates[key].limit,
+                       rates[key].reset.strftime("%H:%m")))
 
 
 class Merge(FilteredPullRequestsCommand):

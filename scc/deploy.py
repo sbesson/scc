@@ -113,8 +113,8 @@ class Deploy(Command):
         except shutil.Error as e:
             for src, dst, error in e.args[0]:
                 if os.path.islink(src):
-                    print("Could not copy symbolic link %s" \
-                        % src, file=sys.stderr)
+                    print("Could not copy symbolic link %s"
+                          % src, file=sys.stderr)
                 else:
                     print("Could not copy %s" % src, file=sys.stderr)
 
