@@ -111,7 +111,7 @@ setup(name='scc',
       # More complex variables
       packages=['scc'],
       include_package_data=True,
-      install_requires=['yaclifw>=0.1.2',
+      install_requires=['yaclifw>=0.2.0,<0.3',
                         'PyGithub',
                         'argparse',
                         'future',
