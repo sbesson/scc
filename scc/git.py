@@ -108,18 +108,23 @@ def retry_on_error(retries=SCC_RETRIES):
 
         def wrapper(*args, **kwargs):
             for num in range(retries + 1):
+                exc = None
                 try:
                     return func(*args, **kwargs)
                 except github.GithubException as e:
                     error = check_github_code(e)
-                except socket.timeout:
+                    exc = e
+                except socket.timeout as e:
                     error = "Socket timeout"
-                except SSLError:
+                    exc = e
+                except SSLError as e:
                     error = "SSL error"
+                    exc = e
                 except Exception as e:
                     error = check_exception_message(e)
+                    exc = e
                 if num >= retries:
-                    raise
+                    raise exc
                 log.debug("%s, retrying (try %s)", error, num + 1)
 
         return wrapper
