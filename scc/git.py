@@ -932,8 +932,7 @@ class GitHubRepository(object):
                               for key, value in excluded_pulls.items()])
             msg += "\n"
 
-        self.candidate_pulls.sort(lambda a, b:
-                                  cmp(a.get_number(), b.get_number()))
+        self.candidate_pulls.sort(key=lambda a: a.get_number())
 
         return msg
 
