@@ -161,7 +161,7 @@ def git_version(local=False):
     Get the version of Git.
     """
     p = subprocess.Popen(["git", "--version"], stdout=subprocess.PIPE)
-    output = p.communicate()[0].split()
+    output = p.communicate()[0].decode('utf-8').split()
     p.stdout.close()
     return tuple([int(x) for x in output[2].split(".")])
 
@@ -185,7 +185,7 @@ def git_config(name, user=False, local=False, value=None, config_file=None):
 
         p = subprocess.Popen(
             pre_cmd + post_cmd, stdout=subprocess.PIPE)
-        value = p.communicate()[0]
+        value = p.communicate()[0].decode('utf-8')
         p.stdout.close()
         value = value.split("\n")[0].strip()
         if value:
