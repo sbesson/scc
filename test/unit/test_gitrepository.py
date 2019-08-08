@@ -104,7 +104,7 @@ class TestGitRepository(MoxTestBase):
 
         with pytest.raises(Exception) as exc_info:
             repo.communicate('cmd', 'a', 'b')
-        assert exc_info.value.message.startswith('Failed to run ')
+        assert str(exc_info.value).startswith('Failed to run ')
         assert p.stdout.n_close == 1
         assert p.stderr.n_close == 1
         assert p.n_wait == 0
@@ -137,7 +137,7 @@ class TestGitRepository(MoxTestBase):
 
         with pytest.raises(Exception) as exc_info:
             repo.call('cmd', 'a', 'b')
-        assert exc_info.value.message == 'rc=1'
+        assert str(exc_info.value) == 'rc=1'
         assert p.stdout.n_close == 0
         assert p.stderr.n_close == 0
         assert p.n_wait == 1
