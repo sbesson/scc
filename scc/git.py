@@ -541,11 +541,8 @@ class PullRequest(object):
         return key in self.get_labels()
 
     def __str__(self):
-        return str(self).encode('utf-8')
-
-    def __unicode__(self):
-        return "  - PR %s %s '%s'" % (self.get_number(), self.get_login(),
-                                      self.get_title())
+        return u"  - PR %s %s '%s'" % (self.get_number(), self.get_login(),
+                                       self.get_title())
 
     @retry_on_error(retries=SCC_RETRIES)
     def __getattr__(self, key):
