@@ -1094,6 +1094,8 @@ class GitRepository(object):
         o, e = p.communicate()
         p.stdout.close()
         p.stderr.close()
+        o = o.decode('utf-8')
+        e = e.decode('utf-8')
         if p.returncode:
             msg = """Failed to run '%s'
     rc:     %s

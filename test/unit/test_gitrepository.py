@@ -77,7 +77,7 @@ class TestGitRepository(MoxTestBase):
     def setup_popen(self, rcode, stderr, stdout):
         repo = MockGitRepository(None, '.')
         self.mox.StubOutWithMock(subprocess, 'Popen')
-        p = MockPopen(rcode, 'out', 'err')
+        p = MockPopen(rcode, b'out', b'err')
         subprocess.Popen(
             ('cmd', 'a', 'b'), stdout=stdout, stderr=stderr).AndReturn(p)
         return repo, p
