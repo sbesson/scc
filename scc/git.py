@@ -1930,12 +1930,22 @@ class GitRepository(object):
 
     def unique_logins(self):
         """Return a set of unique logins."""
-        unique_logins = set()
+        # Py3: TypeError: unhashable type: 'Repository'
+        unique_repos = set()
+        unique_logins = []
         for pull in self.origin.candidate_pulls:
-            unique_logins.add((pull.get_head_login(), pull.get_head_repo()))
+            v = (pull.get_head_login(), pull.get_head_repo())
+            k = (v[0], v[1].full_name)
+            if k not in unique_repos:
+                unique_repos.add(k)
+                unique_logins.append(v)
         for remote, repo_branches in \
                 self.origin.candidate_branches.items():
-            unique_logins.add((remote, repo_branches[0]))
+            v = (remote, repo_branches[0])
+            k = (v[0], v[1].full_name)
+            if k not in unique_repos:
+                unique_repos.add(k)
+                unique_logins.append(v)
         return unique_logins
 
     def get_merge_remotes(self):
