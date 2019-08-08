@@ -41,6 +41,7 @@ from .git import ExternalIssues
 from .git import Label
 from .git import Merge
 from .git import MilestoneCommand
+from .git import PushCommand
 from .git import Rate
 from .git import Rebase
 from .git import SetCommitStatus
@@ -71,6 +72,7 @@ def entry_point():
             (ExternalIssues.NAME, ExternalIssues),
             (Merge.NAME, Merge),
             (MilestoneCommand.NAME, MilestoneCommand),
+            (PushCommand.NAME, PushCommand),
             (Rate.NAME, Rate),
             (Rebase.NAME, Rebase),
             (SetCommitStatus.NAME, SetCommitStatus),
