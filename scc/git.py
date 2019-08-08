@@ -1818,9 +1818,14 @@ class GitRepository(object):
         pattern = r'Merge pull request #(\d+)'
         for line in log.split('\n'):
             s = re.search(pattern, line)
-            if s is not None:
+            if s is None:
+                continue
+            try:
                 pr = self.origin.get_pull(int(s.group(1)))
                 merge_msg += str(PullRequest(pr)) + '\n'
+            except github.UnknownObjectException:
+                self.log.warn("Failed to retrieve %s" % int(s.group(1)),
+                              exc_info=1)
         return merge_msg
 
     def summary_commit(self, merge_msg, commit_id="merge", top_message=None,
