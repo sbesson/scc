@@ -81,10 +81,10 @@ scc commands.
 Running the integration test suite requires:
 
 - a GitHub account
-- a token-based GitHub connection, i.e. a global ``github.token`` stored under
-  the global Git configuration file::
+- a token-based GitHub connection, i.e. a ``github.token`` stored under
+  the local Git configuration file (a global token is ignored)::
 
-    $ git config --global github.token xxxx
+    $ git config github.token xxxx
 
 - the user authenticated by the token defined above needs to own forks of
   snoopys-sandbox_ and snoopys-sandbox-2_
