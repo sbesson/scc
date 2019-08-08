@@ -26,7 +26,7 @@ from github.Repository import Repository
 from scc.git import GHManager
 from scc.git import GitHubRepository
 
-from mox import Mox
+from mox3.mox import Mox
 
 
 class MoxTestBase(object):

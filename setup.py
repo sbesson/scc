@@ -126,5 +126,9 @@ setup(name='scc',
       version=VERSION,
 
       cmdclass={'test': PyTest},
-      tests_require=['pytest<3.3', 'restview', 'mox'],
+      tests_require=[
+          'pytest<3.3',
+          'restview',
+          'mox3'
+      ],
       )
