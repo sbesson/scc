@@ -1,5 +1,5 @@
-Snoopy Crime Copy (SCC)
-=======================
+SCC
+===
 
 |Build Status|
 |Pypi|
@@ -97,12 +97,12 @@ Once this is set up, the integration tests can be run by calling::
 License
 -------
 
-snoopycrimecop is released under the GPL.
+scc is released under the GPL.
 
 Copyright
 ---------
 
-2012-2016, The Open Microscopy Environment
+2012-2019, The Open Microscopy Environment
 
 .. _PyGithub: https://github.com/PyGithub/PyGithub
 .. _argparse: http://pypi.python.org/pypi/argparse
@@ -110,10 +110,10 @@ Copyright
 .. _flake8: https://pypi.python.org/pypi/flake8
 .. _snoopys-sandbox: https://github.com/ome/snoopys-sandbox
 .. _snoopys-sandbox-2: https://github.com/ome/snoopys-sandbox-2
-.. _Travis: https://travis-ci.org/ome/snoopycrimecop
+.. _Travis: https://travis-ci.org/ome/scc
 
-.. |Build Status| image:: https://travis-ci.org/ome/snoopycrimecop.png
-   :target: https://travis-ci.org/ome/snoopycrimecop
+.. |Build Status| image:: https://travis-ci.org/ome/scc.png
+   :target: https://travis-ci.org/ome/scc
 
 .. |Pypi| image:: https://badge.fury.io/py/scc.svg
     :target: https://badge.fury.io/py/scc
