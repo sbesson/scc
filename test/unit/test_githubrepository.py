@@ -19,6 +19,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
+from builtins import str
 from github.AuthenticatedUser import AuthenticatedUser
 from github.NamedUser import NamedUser
 from github.Organization import Organization
@@ -32,7 +34,7 @@ from github.PaginatedList import PaginatedList
 from scc.git import GHManager
 from scc.git import GitHubRepository
 import pytest
-from Mock import MoxTestBase
+from .Mock import MoxTestBase
 
 
 class TestGithubRepository(MoxTestBase):

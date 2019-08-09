@@ -19,6 +19,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 import scc.git
 import pytest
 
@@ -34,7 +37,7 @@ from github.Organization import Organization
 from github.PullRequest import PullRequest
 from github.PullRequestPart import PullRequestPart
 from github.Repository import Repository
-from Mock import MoxTestBase
+from .Mock import MoxTestBase
 
 
 class TestPullRequest(MoxTestBase):
@@ -125,8 +128,7 @@ class TestPullRequest(MoxTestBase):
     def test_str(self, title, user):
         self.pull.title = title
         self.pr_user.login = user
-        assert unicode(self.pr) == self.get_unicode()
-        assert str(self.pr) == self.get_unicode().encode("utf-8")
+        assert str(self.pr) == self.get_unicode()
 
     def test_edit_body(self):
         self.pull.edit("new_body")

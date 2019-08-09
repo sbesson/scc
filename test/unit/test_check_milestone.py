@@ -19,6 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
 from yaclifw.framework import parsers
 
 from github.AuthenticatedUser import AuthenticatedUser
@@ -30,7 +31,7 @@ from github.Repository import Repository
 
 from scc.git import CheckMilestone, PullRequest as PR
 import pytest
-from Mock import MoxTestBase
+from .Mock import MoxTestBase
 
 
 class TestCheckMilestone(MoxTestBase):
