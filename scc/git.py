@@ -90,7 +90,7 @@ def check_github_code(exception):
 
 
 def check_exception_message(exception):
-    if exception.message != "rc=128":
+    if not hasattr(exception, "message") or exception.message != "rc=128":
         raise
     return "Received rc=128"
 
