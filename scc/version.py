@@ -32,4 +32,6 @@ class Version(yaclifw.version.Version):
 
     def __call__(self, args):
         super(yaclifw.version.Version, self).__call__(args)
-        print(resource_string(__name__, 'RELEASE-VERSION').rstrip().decode('utf-8'))
+        v = resource_string(__name__, 'RELEASE-VERSION')
+        v = v.rstrip().decode('utf-8')
+        print(v)
