@@ -981,7 +981,8 @@ class GitHubRepository(object):
 
     def run_status_filter(self, pullrequest, filters):
 
-        if "status" not in filters or filters["status"] == "none":
+        if ("status" not in filters or filters["status"] == "none" or
+                self.repo.private is True):
             return True, None
 
         status = pullrequest.get_last_status("base")
