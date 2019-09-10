@@ -15,7 +15,6 @@ Dependencies
 Direct dependencies of scc are:
 
 - `PyGithub`_
-- `argparse`_
 
 Installation
 ------------
@@ -105,7 +104,6 @@ Copyright
 2012-2019, The Open Microscopy Environment
 
 .. _PyGithub: https://github.com/PyGithub/PyGithub
-.. _argparse: http://pypi.python.org/pypi/argparse
 .. _pep8: https://pypi.python.org/pypi/pep8
 .. _flake8: https://pypi.python.org/pypi/flake8
 .. _snoopys-sandbox: https://github.com/ome/snoopys-sandbox
