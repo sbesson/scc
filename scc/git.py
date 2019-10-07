@@ -20,6 +20,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+from __future__ import print_function
+from past.builtins import cmp
+from builtins import zip
+from builtins import input
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import object
 import argparse
 import re
 import copy
@@ -44,12 +52,12 @@ try:
     try:
         github.GithubException(0, "test")
     except AttributeError:
-        print >> sys.stderr, \
-            "Conflicting github module. Uninstall PyGithub3"
+        print("Conflicting github module. Uninstall PyGithub3",
+              file=sys.stderr)
         github_loaded = False
-except ImportError, ie:
-    print >> sys.stderr, \
-        "Module github missing. Install via 'pip install PyGithub'"
+except ImportError:
+    print("Module github missing. Install via 'pip install PyGithub'",
+          file=sys.stderr)
     github_loaded = False
 
 # Read Jenkins environment variables
@@ -82,7 +90,7 @@ def check_github_code(exception):
 
 
 def check_exception_message(exception):
-    if exception.message != "rc=128":
+    if not hasattr(exception, "message") or exception.message != "rc=128":
         raise
     return "Received rc=128"
 
@@ -100,18 +108,23 @@ def retry_on_error(retries=SCC_RETRIES):
 
         def wrapper(*args, **kwargs):
             for num in range(retries + 1):
+                exc = None
                 try:
                     return func(*args, **kwargs)
-                except github.GithubException, e:
+                except github.GithubException as e:
                     error = check_github_code(e)
-                except socket.timeout:
+                    exc = e
+                except socket.timeout as e:
                     error = "Socket timeout"
-                except SSLError:
+                    exc = e
+                except SSLError as e:
                     error = "SSL error"
-                except Exception, e:
+                    exc = e
+                except Exception as e:
                     error = check_exception_message(e)
+                    exc = e
                 if num >= retries:
-                    raise
+                    raise exc
                 log.debug("%s, retrying (try %s)", error, num + 1)
 
         return wrapper
@@ -148,7 +161,7 @@ def git_version(local=False):
     Get the version of Git.
     """
     p = subprocess.Popen(["git", "--version"], stdout=subprocess.PIPE)
-    output = p.communicate()[0].split()
+    output = p.communicate()[0].decode('utf-8').split()
     p.stdout.close()
     return tuple([int(x) for x in output[2].split(".")])
 
@@ -172,7 +185,7 @@ def git_config(name, user=False, local=False, value=None, config_file=None):
 
         p = subprocess.Popen(
             pre_cmd + post_cmd, stdout=subprocess.PIPE)
-        value = p.communicate()[0]
+        value = p.communicate()[0].decode('utf-8')
         p.stdout.close()
         value = value.split("\n")[0].strip()
         if value:
@@ -235,7 +248,7 @@ class GHManager(object):
             self.authorize(password)
             if login_or_token or password:
                 self.get_login()
-        except github.GithubException, ge:
+        except github.GithubException as ge:
             raise Stop(ge.status, ge.data.get("message", ""))
 
     def exc_check_code_and_message(self, ge, status, message):
@@ -492,7 +505,7 @@ class Milestone(object):
         self.milestone = milestone
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return str(self).encode('utf-8')
 
     def __unicode__(self):
         s = "  # Milestone %s " % self.title
@@ -528,11 +541,8 @@ class PullRequest(object):
         return key in self.get_labels()
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
-
-    def __unicode__(self):
-        return "  - PR %s %s '%s'" % (self.get_number(), self.get_login(),
-                                      self.get_title())
+        return u"  - PR %s %s '%s'" % (self.get_number(), self.get_login(),
+                                       self.get_title())
 
     @retry_on_error(retries=SCC_RETRIES)
     def __getattr__(self, key):
@@ -821,7 +831,7 @@ class GitHubRepository(object):
 
         if "#org" in whitelist:
             # Whitelist all public members of the organization
-            if self.org and self.org.has_in_public_members(user):
+            if self.org and self.org.has_in_members(user):
                 return True
             # Whitelist the owner of a non-organization repository
             elif not self.org and user.login == self.get_owner():
@@ -859,7 +869,7 @@ class GitHubRepository(object):
                 msg += str(pullrequest) + "\n"
         if self.candidate_branches:
             msg += "Candidate Branches:\n"
-            for remote, repo_branches in self.candidate_branches.iteritems():
+            for remote, repo_branches in self.candidate_branches.items():
                 for branch in repo_branches[1]:
                     msg += "  # %s:%s\n" % (remote, branch)
 
@@ -877,7 +887,7 @@ class GitHubRepository(object):
 
     def run_filter(self, filters, pr_attributes, action="Include"):
 
-        for key, value in pr_attributes.iteritems():
+        for key, value in pr_attributes.items():
             intersect_set = self.intersect(filters.get(key, None), value)
             if intersect_set:
                 self.dbg("  # ... %s %s: %s", action, key,
@@ -919,11 +929,10 @@ class GitHubRepository(object):
         if excluded_pulls:
             msg += "Excluded PRs:\n"
             msg += "\n".join(["%s (%s)" % (str(key), str(value))
-                              for key, value in excluded_pulls.iteritems()])
+                              for key, value in excluded_pulls.items()])
             msg += "\n"
 
-        self.candidate_pulls.sort(lambda a, b:
-                                  cmp(a.get_number(), b.get_number()))
+        self.candidate_pulls.sort(key=lambda a: a.get_number())
 
         return msg
 
@@ -972,7 +981,8 @@ class GitHubRepository(object):
 
     def run_status_filter(self, pullrequest, filters):
 
-        if "status" not in filters or filters["status"] == "none":
+        if ("status" not in filters or filters["status"] == "none" or
+                self.repo.private is True):
             return True, None
 
         status = pullrequest.get_last_status("base")
@@ -1044,8 +1054,8 @@ class GitRepository(object):
            isinstance(self.repository_config, six.string_types):
             self.dbg("Reading repository configuration from %s" %
                      (repository_config))
-            self.repository_config = yaml.load(file(self.repository_config,
-                                                    'rb').read())
+            with open(self.repository_config) as fh:
+                self.repository_config = yaml.load(fh)
         if self.repository_config is not None:
             self.dbg("Repository configuration:\n%s" %
                      (yaml.dump(self.repository_config)))
@@ -1084,6 +1094,8 @@ class GitRepository(object):
         o, e = p.communicate()
         p.stdout.close()
         p.stderr.close()
+        o = o.decode('utf-8')
+        e = e.decode('utf-8')
         if p.returncode:
             msg = """Failed to run '%s'
     rc:     %s
@@ -1469,7 +1481,7 @@ class GitRepository(object):
                 pull.get_sha(), upstream=upstream)
             upstream_conflicts = pull_changed.intersection(upstream_changes)
 
-        for (pr, changed) in changed_files.iteritems():
+        for (pr, changed) in changed_files.items():
             if pr != pull:
                 both_changed = pull_changed.intersection(changed)
                 if both_changed:
@@ -1504,7 +1516,7 @@ class GitRepository(object):
               set_commit_status=False):
         """Merge candidate pull requests and pull requests."""
         self.dbg("## Unique users: %s", self.unique_logins())
-        for key, url in self.get_merge_remotes().items():
+        for key, url in list(self.get_merge_remotes().items()):
             self.call("git", "remote", "add", key, url)
             self.fetch(key)
 
@@ -1532,7 +1544,7 @@ class GitRepository(object):
                 conflicting_pulls.append(pullrequest)
 
         for remote, repo_branches in \
-                self.origin.candidate_branches.iteritems():
+                self.origin.candidate_branches.items():
             # repo = repo_branches[0]
             for branch_name in repo_branches[1]:
                 merge_status = self.merge_branch(
@@ -1598,7 +1610,7 @@ class GitRepository(object):
             conflict_msg += '\nFailed to autodetect conflicts'
 
         if conflicts:
-            for pr in sorted(conflicts.keys(),
+            for pr in sorted(list(conflicts.keys()),
                              key=lambda c: c.get_number() if c else None):
                 if pr:
                     conflict_msg += "\n  - PR #%d %s '%s'\n%s" % (
@@ -1928,12 +1940,22 @@ class GitRepository(object):
 
     def unique_logins(self):
         """Return a set of unique logins."""
-        unique_logins = set()
+        # Py3: TypeError: unhashable type: 'Repository'
+        unique_repos = set()
+        unique_logins = []
         for pull in self.origin.candidate_pulls:
-            unique_logins.add((pull.get_head_login(), pull.get_head_repo()))
+            v = (pull.get_head_login(), pull.get_head_repo())
+            k = (v[0], v[1].full_name)
+            if k not in unique_repos:
+                unique_repos.add(k)
+                unique_logins.append(v)
         for remote, repo_branches in \
-                self.origin.candidate_branches.iteritems():
-            unique_logins.add((remote, repo_branches[0]))
+                self.origin.candidate_branches.items():
+            v = (remote, repo_branches[0])
+            k = (v[0], v[1].full_name)
+            if k not in unique_repos:
+                unique_repos.add(k)
+                unique_logins.append(v)
         return unique_logins
 
     def get_merge_remotes(self):
@@ -1966,13 +1988,14 @@ class GitRepository(object):
         """Remove remote branches created for merging."""
         if self.gh:  # no gh implies no connection
             remotes = self.list_remotes()
-            merge_remotes = [x for x in self.get_merge_remotes().keys()
+            merge_remotes = [x for x in list(self.get_merge_remotes().keys())
                              if x in remotes]
             for merge_remote in merge_remotes:
                 try:
                     self.call("git", "remote", "rm", merge_remote)
                 except Exception:
-                    self.log.error("Failed to remove", key, exc_info=1)
+                    self.log.error(
+                        "Failed to remove", merge_remote, exc_info=1)
 
     def rpush(self, branch_name, remote, force=False):
         """Recursively push a branch to remotes across submodules"""
@@ -2040,9 +2063,9 @@ class GitHubCommand(Command):
         else:
             token = get_token_or_user()
         if token is None and not args.no_ask:
-            print "# github.token and github.user not found."
-            print "# See `%s token` for simpifying use." % sys.argv[0]
-            token = raw_input("Username or token: ").strip()
+            print("# github.token and github.user not found.")
+            print("# See `%s token` for simpifying use." % sys.argv[0])
+            token = input("Username or token: ").strip()
         self.gh = get_github(token, dont_ask=args.no_ask)
         self.show_rate()
 
@@ -2178,7 +2201,7 @@ def get_default_filters(default):
         filters["include"] = {"user": ["#all"]}
         filters["exclude"] = {}
     else:
-        raise "Default %s non-defined"
+        raise Exception("Default %s non-defined")
     return filters
 
 
@@ -2238,12 +2261,13 @@ ALL sets user:#all as the default include filter. Default: ORG.""")
             "pr": ("%s Pull Request(s)", lambda x: x),
             "user": ("%s Pull Request(s) opened by", self.get_user_desc)}
 
-        for ftype in sorted(ftype_desc.keys(), reverse=True):
-            for key in sorted(self.filters[ftype].keys(), reverse=True):
+        for ftype in sorted(list(ftype_desc.keys()), reverse=True):
+            for key in sorted(list(self.filters[ftype].keys()), reverse=True):
                 if key in key_value_map:
                     key_desc = key_value_map[key][0] % ftype_desc[ftype]
                     value_map = key_value_map[key][1]
-                    values_desc = map(value_map, self.filters[ftype][key])
+                    values_desc = list(map(
+                        value_map, self.filters[ftype][key]))
                 else:
                     key_desc = "%s %s Branches(s)/Pull Request(s)" % (
                         ftype_desc[ftype], key)
@@ -2392,7 +2416,7 @@ class CheckLabels(GitRepoCommand):
         self.login(args)
         all_repos = self.init_main_repo(args)
         for repo in all_repos:
-            print repo.origin
+            print(repo.origin)
             pulls = repo.origin.get_pulls()
             for pull in pulls:
                 pr = PullRequest(pull)
@@ -2406,9 +2430,9 @@ class CheckLabels(GitRepoCommand):
         if label not in pr_labels:
             if set_label:
                 pr.get_issue().add_to_labels(label)
-                print "Added label %s to %s" % (label, pr.number)
+                print("Added label %s to %s" % (label, pr.number))
             else:
-                print "Missing label %s on %s" % (label, pr.number)
+                print("Missing label %s on %s" % (label, pr.number))
 
 
 class CheckMilestone(GitRepoCommand):
@@ -2441,7 +2465,7 @@ Usage:
         all_repos = self.init_main_repo(args)
         try:
             for repo in all_repos:
-                print repo.origin
+                print(repo.origin)
                 self.check_milestone(repo, args)
         finally:
             self.main_repo.cleanup()
@@ -2492,15 +2516,15 @@ Usage:
                            pr.number, pr.milestone.title)
             has_milestone = True
         else:
-            print "No milestone for PR %s: %s" % (pr.number, pr.title)
+            print("No milestone for PR %s: %s" % (pr.number, pr.title))
 
         set_milestone = False
         if milestone and (milestone_title != milestone.title):
             try:
                 pr.get_issue().edit(milestone=milestone)
-                print "Set milestone for PR %s to %s" \
-                    % (pr.number, milestone.title)
-            except github.GithubException, ge:
+                print("Set milestone for PR %s to %s" %
+                      (pr.number, milestone.title))
+            except github.GithubException as ge:
                 if self.gh.exc_is_not_found(ge):
                     raise Stop(10, "Can't edit milestone")
                 raise
@@ -2558,7 +2582,7 @@ command.
             repos = [self.main_repo]
             repos.extend(self.main_repo.submodules)
             for repo in repos:
-                print repo.origin
+                print(repo.origin)
                 self.prs = {}
                 self.links = {}
                 self.rebasedprs = set()
@@ -2578,7 +2602,7 @@ command.
         # Load cached links
         self.load_links(cache_dir=args.cache_dir,
                         cache_name=repo.origin.repo_name + '.rebased')
-        self.rebasedprs.update(self.links.keys())
+        self.rebasedprs.update(list(self.links.keys()))
 
         # List unrebased PRs
         count1 = self.list_unrebased_prs(
@@ -2593,17 +2617,17 @@ command.
             if not m:
                 mismatch_count = 0
             else:
-                print "*"*100
-                print "Mismatching rebased PR comments"
-                print "*"*100
+                print("*"*100)
+                print("Mismatching rebased PR comments")
+                print("*"*100)
 
-                for key in m.keys():
+                for key in list(m.keys()):
                     comments = ", ".join(['--rebased'+x for x in m[key]])
                     if key in self.rebasedprs:
                         self.rebasedprs.remove(key)
-                    print "  # PR %s: expected '%s' comment(s)" %  \
-                        (key, comments)
-                mismatch_count = len(m.keys())
+                    print("  # PR %s: expected '%s' comment(s)" %
+                          (key, comments))
+                mismatch_count = len(list(m.keys()))
         else:
             mismatch_count = 0
 
@@ -2694,14 +2718,14 @@ command.
                     raise Stop("File already exists: %s" % fname)
                 f = open(fname, "w")
                 for pr in unrebased_prs:
-                    print >> f, pr
+                    print(pr, file=f)
             else:
-                print "*"*100
-                print "PRs on %s without note/comment for %s" \
-                    % (source_branch, target_branch)
-                print "*"*100
+                print("*"*100)
+                print("PRs on %s without note/comment for %s" %
+                      (source_branch, target_branch))
+                print("*"*100)
                 for pr in unrebased_prs:
-                    print pr
+                    print(pr)
 
         return len(unrebased_prs)
 
@@ -2762,10 +2786,10 @@ command.
         m = self.check_directed_links(self.links)
 
         # Ensure all nodes (PRs) are visited - handling chained links
-        while not all(x in self.links.keys() for x in m.keys()):
+        while not all(x in list(self.links.keys()) for x in list(m.keys())):
 
-            for pr_number in [key for key in m.keys()
-                              if key not in self.links.keys()]:
+            for pr_number in [key for key in list(m.keys())
+                              if key not in list(self.links.keys())]:
                 self.visit_pr(gh_repo, pr_number)
 
             m = self.check_directed_links(self.links)
@@ -2777,7 +2801,7 @@ command.
         """Find mismatching comments in rebased PRs"""
 
         mismatch_dict = {}
-        for source_pr in links.keys():
+        for source_pr in list(links.keys()):
             # Do not check PRs without rebase comments or marked as no-rebase
             if links[source_pr] == -1 or links[source_pr] is None:
                 continue
@@ -2785,7 +2809,7 @@ command.
             targets, target_links = CheckPRs.read_links(links, source_pr)
             for target_pr, target_link in zip(targets, target_links):
 
-                if target_pr not in links.keys():
+                if target_pr not in list(links.keys()):
                     # Target PR has not been visited
                     mismatch = True
                 elif links[target_pr] is None or links[target_pr] == -1:
@@ -2807,11 +2831,11 @@ command.
         return mismatch_dict
 
     def visit_pr(self, gh_repo, pr_number):
-        if pr_number not in self.prs.keys():
+        if pr_number not in list(self.prs.keys()):
             pr = PullRequest(gh_repo.get_pull(pr_number))
             self.prs[pr_number] = pr
 
-        if pr_number not in self.links.keys():
+        if pr_number not in list(self.links.keys()):
             self.links[pr_number] = None
             if pr.parse('no-rebase'):
                 self.links[pr_number] = -1
@@ -2924,7 +2948,7 @@ class AlreadyMerged(GitHubCommand):
         tip = main_repo.communicate("git", "rev-parse", branch)
         mrg = main_repo.merge_base(branch, target)
         if tip == mrg:
-            print input
+            print(input)
 
 
 class CleanSandbox(GitHubCommand):
@@ -2957,9 +2981,9 @@ Removes all branches from your fork of snoopys-sandbox
         for b in branches:
             if b.name in args.skip:
                 if args.dry_run:
-                    print "Would not delete", b.name
+                    print("Would not delete", b.name)
             elif args.dry_run:
-                print "Would delete", b.name
+                print("Would delete", b.name)
             elif args.force:
                 gh_repo.push(":%s" % b.name)
             else:
@@ -3004,8 +3028,8 @@ class ExternalIssues(GitHubCommand):
                     issue.html_url,
                     issue.user.login,
                 ))
-            print "##", org.login, "(%s)" % len(issues), "##"
-            print "\n".join(sorted(issues))
+            print("##", org.login, "(%s)" % len(issues), "##")
+            print("\n".join(sorted(issues)))
 
 
 class UnsubscribedRepos(GitHubCommand):
@@ -3027,7 +3051,7 @@ class UnsubscribedRepos(GitHubCommand):
         self.login(args)
         login = self.gh.get_login()
         for org in args.orgs:
-            print org
+            print(org)
             org = self.gh.get_organization(org)
             for repo in org.get_repos():
                 found = False
@@ -3036,7 +3060,7 @@ class UnsubscribedRepos(GitHubCommand):
                         found = True
                         break
                 if not found:
-                    print "\t", repo.name
+                    print("\t", repo.name)
 
 
 class Label(GitHubCommand):
@@ -3088,12 +3112,12 @@ class Label(GitHubCommand):
 
             try:
                 label = main_repo.origin.get_label(label)
-            except github.GithubException, ge:
+            except github.GithubException as ge:
                 if self.gh.exc_is_not_found(ge):
                     try:
                         main_repo.origin.create_label(label, "663399")
                         label = main_repo.origin.get_label(label)
-                    except github.GithubException, ge:
+                    except github.GithubException as ge:
                         if self.gh.exc_is_not_found(ge):
                             raise Stop(10, "Can't create label: %s" % label)
                         raise
@@ -3104,22 +3128,22 @@ class Label(GitHubCommand):
                 pr = PullRequest(main_repo.origin.get_pull(args.pr))
                 try:
                     pr.get_issue().add_to_labels(label)
-                except github.GithubException, ge:
+                except github.GithubException as ge:
                     if self.gh.exc_is_not_found(ge):
                         raise Stop(10, "Can't add label: %s" % label.name)
                     raise
 
     def available(self, args, main_repo):
         if args.pr:
-            print >>sys.stderr, "# Ignoring pull requests: %s" % args.pr
+            print("# Ignoring pull requests: %s" % args.pr, file=sys.stderr)
         for label in main_repo.origin.get_labels():
-            print label.name
+            print(label.name)
 
     def list(self, args, main_repo):
         for pr_num in args.pr:
             pr = PullRequest(main_repo.origin.get_pull(pr_num))
             for label in pr.get_labels():
-                print label
+                print(label)
 
 
 class Rate(GitHubCommand):
@@ -3149,9 +3173,9 @@ class Rate(GitHubCommand):
 
         for key in rates:
             if rates[key]:
-                print ("%s: %s remaining from %s. Reset at %s" %
-                       (key, rates[key].remaining, rates[key].limit,
-                        rates[key].reset.strftime("%H:%m")))
+                print("%s: %s remaining from %s. Reset at %s" %
+                      (key, rates[key].remaining, rates[key].limit,
+                       rates[key].reset.strftime("%H:%m")))
 
 
 class Merge(FilteredPullRequestsCommand):
@@ -3302,17 +3326,17 @@ class MilestoneCommand(GitRepoCommand):
             milestones = repo.origin.get_milestones()
             parsed = [(m.due_on, m) for m in milestones]
             parsed.sort(self.cmp_date)
-            print header
+            print(header)
             for due_on, m in parsed:
                 due = due_on is not None and due_on or ""
-                print fmt % (m.title, m.created_at, due,
-                             "%-3s (%s)" % (m.open_issues, m.closed_issues))
+                print(fmt % (m.title, m.created_at, due,
+                             "%-3s (%s)" % (m.open_issues, m.closed_issues)))
 
     def check_write_permissions(self, repos):
-        permissions = [repo.origin.permissions.push for repo in repos]
-        if not all(permissions):
-            raise Stop(4, '%s: User %s cannot edit milestones'
-                       % (repo.origin, self.gh.get_login()))
+        for repo in repos:
+            if not repo.origin.permissions.push:
+                raise Stop(4, '%s: User %s cannot edit milestones' %
+                           (repo.origin, self.gh.get_login()))
 
     def format_milestone_properties(self, args):
 
@@ -3372,6 +3396,27 @@ class MilestoneCommand(GitRepoCommand):
             if milestone:
                 milestone.edit(milestone.title, state="closed")
                 self.log.info('Closed milestone %s' % args.title)
+
+
+class PushCommand(GitRepoCommand):
+    """
+    Push a branch to a repository and its submodules.
+    """
+
+    NAME = "push"
+
+    def __init__(self, sub_parsers):
+        super(PushCommand, self).__init__(sub_parsers)
+        self.parser.add_argument(
+            'push', type=str,
+            help='Name of the branch to use to recursively push'
+            ' the merged branch to GitHub')
+
+    def __call__(self, args):
+        super(PushCommand, self).__call__(args)
+        self.login(args)
+        self.init_main_repo(args)
+        self.push(args, self.main_repo)
 
 
 class Rebase(GitRepoCommand):
@@ -3494,7 +3539,7 @@ class Rebase(GitRepoCommand):
             raise Stop(22, "No new commits between the rebased branch and %s"
                        % remote_newbase)
         self.main_repo.new_branch(new_branch)
-        print >> sys.stderr, "# Created local branch %s" % new_branch
+        print("# Created local branch %s" % new_branch, file=sys.stderr)
 
         return pr, new_branch
 
@@ -3519,7 +3564,7 @@ class Rebase(GitRepoCommand):
         if not push_msg:
             self.main_repo.push_branch(new_branch, remote=remote)
             push_msg = "# Pushed %s to %s" % (new_branch, remote)
-        print >> sys.stderr, push_msg
+        print(push_msg, file=sys.stderr)
 
     def open_pr(self, new_branch, newbase, pr):
 
@@ -3539,7 +3584,7 @@ This is the same as gh-%(id)s but rebased onto %(base)s.
 
         rebased_pr = PullRequest(self.main_repo.origin.open_pr(
             title, body, base=newbase, head="%s:%s" % (user, new_branch)))
-        print rebased_pr.html_url
+        print(rebased_pr.html_url)
 
         # Add rebase comments
         pr.create_issue_comment('--rebased-to #%s' % rebased_pr.number)
@@ -3626,7 +3671,7 @@ class Token(GitHubCommand):
 
                 rv = git_config(key, user=user, local=local)
                 if rv is not None:
-                    print "[%s] %s=%s" % (msg, key, rv)
+                    print("[%s] %s=%s" % (msg, key, rv))
 
     def create(self, args):
         """Create a new GitHub token"""
@@ -3638,7 +3683,7 @@ class Token(GitHubCommand):
         gh = get_github(user)
         user = gh.github.get_user()
         auth = user.create_authorization(args.scope, "scc token")
-        print "Created authentification token %s" % auth.token
+        print("Created authentification token %s" % auth.token)
         if not args.no_set:
             git_config("github.token", user=args.user,
                        local=args.local, value=auth.token)
@@ -3650,7 +3695,7 @@ class Token(GitHubCommand):
         token = git_config("github.token",
                            user=args.user, local=args.local)
         if token:
-            print token
+            print(token)
 
     def set(self, args):
         """Set the value of the GitHub token"""

@@ -24,31 +24,34 @@ Primary launching functions for omego. All Commands
 which are present in the globals() of this module
 will be presented to the user.
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import traceback
 import sys
 
 from yaclifw.framework import main, Stop
-from git import AlreadyMerged
-from git import CheckLabels
-from git import CheckMilestone
-from git import CheckPRs
-from git import CheckStatus
-from git import DeleteTags
-from git import ExternalIssues
-from git import Label
-from git import Merge
-from git import MilestoneCommand
-from git import Rate
-from git import Rebase
-from git import SetCommitStatus
-from git import TagRelease
-from git import Token
-from git import TravisMerge
-from git import UnsubscribedRepos
-from git import UpdateSubmodules
-from deploy import Deploy
-from version import Version
+from .git import AlreadyMerged
+from .git import CheckLabels
+from .git import CheckMilestone
+from .git import CheckPRs
+from .git import CheckStatus
+from .git import DeleteTags
+from .git import ExternalIssues
+from .git import Label
+from .git import Merge
+from .git import MilestoneCommand
+from .git import PushCommand
+from .git import Rate
+from .git import Rebase
+from .git import SetCommitStatus
+from .git import TagRelease
+from .git import Token
+from .git import TravisMerge
+from .git import UnsubscribedRepos
+from .git import UpdateSubmodules
+from .deploy import Deploy
+from .version import Version
 
 
 def entry_point():
@@ -69,6 +72,7 @@ def entry_point():
             (ExternalIssues.NAME, ExternalIssues),
             (Merge.NAME, Merge),
             (MilestoneCommand.NAME, MilestoneCommand),
+            (PushCommand.NAME, PushCommand),
             (Rate.NAME, Rate),
             (Rebase.NAME, Rebase),
             (SetCommitStatus.NAME, SetCommitStatus),
@@ -79,13 +83,13 @@ def entry_point():
             (UnsubscribedRepos.NAME, UnsubscribedRepos),
             (UpdateSubmodules.NAME, UpdateSubmodules),
             ])
-    except Stop, stop:
-        print stop,
+    except Stop as stop:
+        print(stop, end=' ')
         sys.exit(stop.rc)
     except SystemExit:
         raise
     except KeyboardInterrupt:
-        print "Cancelled"
+        print("Cancelled")
         sys.exit(1)
     except Exception:
         traceback.print_exc()

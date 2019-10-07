@@ -19,6 +19,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
+from builtins import str
 from github.AuthenticatedUser import AuthenticatedUser
 from github.NamedUser import NamedUser
 from github.Organization import Organization
@@ -32,7 +34,7 @@ from github.PaginatedList import PaginatedList
 from scc.git import GHManager
 from scc.git import GitHubRepository
 import pytest
-from Mock import MoxTestBase
+from .Mock import MoxTestBase
 
 
 class TestGithubRepository(MoxTestBase):
@@ -174,7 +176,7 @@ class TestGithubRepository(MoxTestBase):
         if with_org:
             self.setup_org()
         if whitelist and with_org and "#org" in whitelist:
-            self.org.has_in_public_members(user).AndReturn(True)
+            self.org.has_in_members(user).AndReturn(True)
         self.setup_repo()
 
         assert self.gh_repo.is_whitelisted(user, whitelist)
@@ -186,7 +188,7 @@ class TestGithubRepository(MoxTestBase):
         user.login = 'test'
         self.setup_org()
         if "#org" in whitelist and "#all" not in whitelist:
-            self.org.has_in_public_members(user).AndReturn(True)
+            self.org.has_in_members(user).AndReturn(True)
         self.setup_repo()
 
         assert self.gh_repo.is_whitelisted(user, whitelist)
@@ -200,7 +202,7 @@ class TestGithubRepository(MoxTestBase):
         if with_org:
             self.setup_org()
         if whitelist and with_org and "#org" in whitelist:
-            self.org.has_in_public_members(user).AndReturn(False)
+            self.org.has_in_members(user).AndReturn(False)
         self.setup_repo()
 
         assert not self.gh_repo.is_whitelisted(user, whitelist)

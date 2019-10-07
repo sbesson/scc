@@ -19,9 +19,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
+from builtins import object
 from scc.git import GitRepository
 import pytest
-from Mock import MoxTestBase
+from .Mock import MoxTestBase
 
 import logging
 import subprocess
@@ -75,7 +77,7 @@ class TestGitRepository(MoxTestBase):
     def setup_popen(self, rcode, stderr, stdout):
         repo = MockGitRepository(None, '.')
         self.mox.StubOutWithMock(subprocess, 'Popen')
-        p = MockPopen(rcode, 'out', 'err')
+        p = MockPopen(rcode, b'out', b'err')
         subprocess.Popen(
             ('cmd', 'a', 'b'), stdout=stdout, stderr=stderr).AndReturn(p)
         return repo, p
@@ -102,7 +104,7 @@ class TestGitRepository(MoxTestBase):
 
         with pytest.raises(Exception) as exc_info:
             repo.communicate('cmd', 'a', 'b')
-        assert exc_info.value.message.startswith('Failed to run ')
+        assert str(exc_info.value).startswith('Failed to run ')
         assert p.stdout.n_close == 1
         assert p.stderr.n_close == 1
         assert p.n_wait == 0
@@ -135,7 +137,7 @@ class TestGitRepository(MoxTestBase):
 
         with pytest.raises(Exception) as exc_info:
             repo.call('cmd', 'a', 'b')
-        assert exc_info.value.message == 'rc=1'
+        assert str(exc_info.value) == 'rc=1'
         assert p.stdout.n_close == 0
         assert p.stderr.n_close == 0
         assert p.n_wait == 1

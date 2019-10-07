@@ -19,10 +19,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
 import os
 import pytest
 from scc.git import get_token_or_user, git_version
-from Sandbox import SandboxTest
+from .Sandbox import SandboxTest
 
 mingitversion = pytest.mark.skipif(git_version() < (1, 7, 4),
                                    reason="Git 1.7.4 required")

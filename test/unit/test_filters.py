@@ -19,6 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
 import pytest
 
 from yaclifw.framework import parsers
@@ -27,7 +28,7 @@ from scc.git import Merge
 from scc.git import SetCommitStatus
 from scc.git import TravisMerge
 from scc.git import get_default_filters
-from Mock import MoxTestBase, MockTest
+from .Mock import MoxTestBase, MockTest
 defaults = (None, 'none', 'org', 'all')
 
 

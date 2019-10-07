@@ -1,5 +1,5 @@
-Snoopy Crime Copy (SCC)
-=======================
+SCC
+===
 
 |Build Status|
 |Pypi|
@@ -15,7 +15,6 @@ Dependencies
 Direct dependencies of scc are:
 
 - `PyGithub`_
-- `argparse`_
 
 Installation
 ------------
@@ -81,10 +80,10 @@ scc commands.
 Running the integration test suite requires:
 
 - a GitHub account
-- a token-based GitHub connection, i.e. a global ``github.token`` stored under
-  the global Git configuration file::
+- a token-based GitHub connection, i.e. a ``github.token`` stored under
+  the local Git configuration file (a global token is ignored)::
 
-    $ git config --global github.token xxxx
+    $ git config github.token xxxx
 
 - the user authenticated by the token defined above needs to own forks of
   snoopys-sandbox_ and snoopys-sandbox-2_
@@ -97,23 +96,22 @@ Once this is set up, the integration tests can be run by calling::
 License
 -------
 
-snoopycrimecop is released under the GPL.
+scc is released under the GPL.
 
 Copyright
 ---------
 
-2012-2016, The Open Microscopy Environment
+2012-2019, The Open Microscopy Environment
 
 .. _PyGithub: https://github.com/PyGithub/PyGithub
-.. _argparse: http://pypi.python.org/pypi/argparse
 .. _pep8: https://pypi.python.org/pypi/pep8
 .. _flake8: https://pypi.python.org/pypi/flake8
 .. _snoopys-sandbox: https://github.com/ome/snoopys-sandbox
 .. _snoopys-sandbox-2: https://github.com/ome/snoopys-sandbox-2
-.. _Travis: https://travis-ci.org/ome/snoopycrimecop
+.. _Travis: https://travis-ci.org/ome/scc
 
-.. |Build Status| image:: https://travis-ci.org/ome/snoopycrimecop.png
-   :target: https://travis-ci.org/ome/snoopycrimecop
+.. |Build Status| image:: https://travis-ci.org/ome/scc.png
+   :target: https://travis-ci.org/ome/scc
 
 .. |Pypi| image:: https://badge.fury.io/py/scc.svg
     :target: https://badge.fury.io/py/scc

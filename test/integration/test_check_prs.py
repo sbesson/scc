@@ -19,11 +19,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import absolute_import
 import pytest
 from github import UnknownObjectException
 from yaclifw.framework import main, Stop, parsers
 from scc.git import CheckPRs, PullRequest
-from Sandbox import SandboxTest
+from .Sandbox import SandboxTest
 
 
 class TestCheckPRs(SandboxTest):
@@ -92,7 +93,7 @@ class TestCheckPRs(SandboxTest):
             try:
                 self.unrebased_prs()
                 pytest.fail('should stop')
-            except Stop, s:
+            except Stop as s:
                 unrebased_count = 3
                 if checklinks:
                     unrebased_count += 1
