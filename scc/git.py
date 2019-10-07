@@ -1790,15 +1790,8 @@ class GitRepository(object):
                 ff_msg, ff_log = self.fast_forward(filters["base"],
                                                    remote=self.remote)
                 merge_msg += ff_msg
-                # Scan the ff log to produce a digest of the merged PRs
                 if ff_log:
-                    merge_msg += "Previously merged:\n"
-                    pattern = r'Merge pull request #(\d+)'
-                    for line in ff_log.split('\n'):
-                        s = re.search(pattern, line)
-                        if s is not None:
-                            pr = self.origin.get_pull(int(s.group(1)))
-                            merge_msg += str(PullRequest(pr)) + '\n'
+                    merge_msg += self.scan_log(ff_log)
                 merge_msg += '\n'
 
             merge_msg += self.merge(comment, commit_id=commit_id,
@@ -1830,6 +1823,22 @@ class GitRepository(object):
                 updated = True
 
         return updated, merge_msg
+
+    def scan_log(self, log):
+        """Scan a log to produce a digest of the merged PRs"""
+        merge_msg = "Previously merged:\n"
+        pattern = r'Merge pull request #(\d+)'
+        for line in log.split('\n'):
+            s = re.search(pattern, line)
+            if s is None:
+                continue
+            try:
+                pr = self.origin.get_pull(int(s.group(1)))
+                merge_msg += str(PullRequest(pr)) + '\n'
+            except github.UnknownObjectException:
+                self.log.warn("Failed to retrieve %s" % int(s.group(1)),
+                              exc_info=1)
+        return merge_msg
 
     def summary_commit(self, merge_msg, commit_id="merge", top_message=None,
                        update_gitmodules=False, allow_empty=True):
