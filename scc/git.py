@@ -1515,6 +1515,8 @@ class GitRepository(object):
     def merge(self, comment=False, commit_id="merge",
               set_commit_status=False):
         """Merge candidate pull requests and pull requests."""
+        for pull in self.origin.candidate_pulls:
+            self.call("git", "fetch", "origin", "pull/%s/head" % pull.number)
         self.dbg("## Unique users: %s", self.unique_logins())
         for key, url in list(self.get_merge_remotes().items()):
             self.call("git", "remote", "add", key, url)
@@ -1943,12 +1945,6 @@ class GitRepository(object):
         # Py3: TypeError: unhashable type: 'Repository'
         unique_repos = set()
         unique_logins = []
-        for pull in self.origin.candidate_pulls:
-            v = (pull.get_head_login(), pull.get_head_repo())
-            k = (v[0], v[1].full_name)
-            if k not in unique_repos:
-                unique_repos.add(k)
-                unique_logins.append(v)
         for remote, repo_branches in \
                 self.origin.candidate_branches.items():
             v = (remote, repo_branches[0])
