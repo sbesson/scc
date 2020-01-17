@@ -37,6 +37,7 @@ import uuid
 import subprocess
 import logging
 import threading
+import collections
 import datetime
 import difflib
 import socket
@@ -3016,16 +3017,24 @@ class ExternalIssues(GitHubCommand):
             org = self.gh.get_organization(org)
             for m in org.get_members():
                 query += " -author:%s" % m.login
-            issues = []
+
+            count = 0
+            grouped_issues = collections.defaultdict(list)
             for issue in self.gh.search_issues(query):
-                issues.append(' - [???] [\\[%s\\] %s ](%s) (%s)' % (
+                count += 1
+                month = "%4d-%02d" % (issue.updated_at.year, issue.updated_at.month)
+                grouped_issues[month].append(' - [???] [\\[%s\\] %s ](%s) (%s) ' % (
                     issue.repository.name,
                     issue.title,
                     issue.html_url,
                     issue.user.login,
                 ))
-            print("##", org.login, "(%s)" % len(issues), "##")
-            print("\n".join(sorted(issues)))
+
+            print("##", org.login, "(%s)" % count, "##")
+            for month in sorted(grouped_issues):
+                issues = sorted(grouped_issues[month])
+                print("## %s" % month)
+                print("\n".join(sorted(issues)))
 
 
 class UnsubscribedRepos(GitHubCommand):
