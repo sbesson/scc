@@ -3022,13 +3022,15 @@ class ExternalIssues(GitHubCommand):
             grouped_issues = collections.defaultdict(list)
             for issue in self.gh.search_issues(query):
                 count += 1
-                month = "%4d-%02d" % (issue.updated_at.year, issue.updated_at.month)
-                grouped_issues[month].append(' - [???] [\\[%s\\] %s ](%s) (%s) ' % (
-                    issue.repository.name,
-                    issue.title,
-                    issue.html_url,
-                    issue.user.login,
-                ))
+                month = "%4d-%02d" % (issue.updated_at.year,
+                                      issue.updated_at.month)
+                grouped_issues[month].append(
+                    ' - [???] [\\[%s\\] %s ](%s) (%s) ' % (
+                        issue.repository.name,
+                        issue.title,
+                        issue.html_url,
+                        issue.user.login,
+                    ))
 
             print("##", org.login, "(%s)" % count, "##")
             for month in sorted(grouped_issues):
