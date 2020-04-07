@@ -3001,6 +3001,9 @@ class ExternalIssues(GitHubCommand):
             '--no-labels', action="store_true", default=False,
             help="filter issues which have had labels applied")
         self.parser.add_argument(
+            '--by-date', action="store_true", default=False,
+            help="group issues by YYYY-MM in reverse order")
+        self.parser.add_argument(
             'orgs', nargs="+",
             help="organizations that should be checked")
 
@@ -3018,25 +3021,38 @@ class ExternalIssues(GitHubCommand):
             for m in org.get_members():
                 query += " -author:%s" % m.login
 
-            count = 0
-            grouped_issues = collections.defaultdict(list)
-            for issue in self.gh.search_issues(query):
-                count += 1
-                month = "%4d-%02d" % (issue.updated_at.year,
-                                      issue.updated_at.month)
-                grouped_issues[month].append(
-                    ' - [???] [\\[%s\\] %s ](%s) (%s) ' % (
+            if not args.by_date:
+                issues = []
+                for issue in self.gh.search_issues(query):
+                    issues.append(' - [???] [\\[%s\\] %s ](%s) (%s)' % (
                         issue.repository.name,
                         issue.title,
                         issue.html_url,
                         issue.user.login,
                     ))
-
-            print("##", org.login, "(%s)" % count, "##")
-            for month in sorted(grouped_issues):
-                issues = sorted(grouped_issues[month])
-                print("## %s" % month)
+                print("##", org.login, "(%s)" % len(issues), "##")
                 print("\n".join(sorted(issues)))
+
+            else:
+                count = 0
+                grouped_issues = collections.defaultdict(list)
+                for issue in self.gh.search_issues(query):
+                    count += 1
+                    month = "%4d-%02d" % (issue.updated_at.year,
+                                          issue.updated_at.month)
+                    grouped_issues[month].append(
+                        ' - [???] [\\[%s\\] %s ](%s) (%s) ' % (
+                            issue.repository.name,
+                            issue.title,
+                            issue.html_url,
+                            issue.user.login,
+                        ))
+
+                print("##", org.login, "(%s)" % count, "##")
+                for month in sorted(grouped_issues):
+                    issues = sorted(grouped_issues[month])
+                    print("## %s" % month)
+                    print("\n".join(sorted(issues)))
 
 
 class UnsubscribedRepos(GitHubCommand):
