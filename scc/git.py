@@ -2987,15 +2987,15 @@ Removes all branches from your fork of snoopys-sandbox
                 raise Exception("Not possible!")
 
 
-class ExternalIssues(GitHubCommand):
+class GitHubIssues(GitHubCommand):
     """
-    Find issues opened by non-org users
+    Find issues, e.g. opened by non-org users
     """
 
-    NAME = "external-issues"
+    NAME = "issues"
 
     def __init__(self, sub_parsers):
-        super(ExternalIssues, self).__init__(sub_parsers)
+        super(GitHubIssues, self).__init__(sub_parsers)
 
         self.parser.add_argument(
             '--no-labels', action="store_true", default=False,
@@ -3004,11 +3004,14 @@ class ExternalIssues(GitHubCommand):
             '--by-date', action="store_true", default=False,
             help="group issues by YYYY-MM in reverse order")
         self.parser.add_argument(
+            '--external', action="store_true", default=False,
+            help="limit issues to non-org users")
+        self.parser.add_argument(
             'orgs', nargs="+",
             help="organizations that should be checked")
 
     def __call__(self, args):
-        super(ExternalIssues, self).__call__(args)
+        super(GitHubIssues, self).__call__(args)
         self.login(args)
         for org in args.orgs:
             query = "is:open"
@@ -3018,8 +3021,9 @@ class ExternalIssues(GitHubCommand):
             if args.no_labels:
                 query += " no:label"
             org = self.gh.get_organization(org)
-            for m in org.get_members():
-                query += " -author:%s" % m.login
+            if args.external:
+                for m in org.get_members():
+                    query += " -author:%s" % m.login
 
             if not args.by_date:
                 issues = []
