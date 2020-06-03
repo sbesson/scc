@@ -3004,11 +3004,17 @@ class GitHubIssues(GitHubCommand):
             '--by-date', action="store_true", default=False,
             help="group issues by YYYY-MM in reverse order")
         self.parser.add_argument(
-            '--external', action="store_true", default=False,
-            help="limit issues to non-org users")
-        self.parser.add_argument(
             'orgs', nargs="+",
             help="organizations that should be checked")
+
+        # To org or not to org
+        membership = self.parser.add_mutually_exclusive_group(required=False)
+        membership.add_argument(
+            '--external', action="store_true", default=None, dest="external",
+            help="limit issues to non-org users")
+        membership.add_argument(
+            '--internal', action="store_false", default=None, dest="external",
+            help="limit issues to org users")
 
     def __call__(self, args):
         super(GitHubIssues, self).__call__(args)
@@ -3021,9 +3027,15 @@ class GitHubIssues(GitHubCommand):
             if args.no_labels:
                 query += " no:label"
             org = self.gh.get_organization(org)
-            if args.external:
+            if args.external is None:
+                # load all
+                pass
+            elif args.external:
                 for m in org.get_members():
                     query += " -author:%s" % m.login
+            else:
+                for m in org.get_members():
+                    query += " author:%s" % m.login
 
             if not args.by_date:
                 issues = []
