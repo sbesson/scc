@@ -2987,15 +2987,15 @@ Removes all branches from your fork of snoopys-sandbox
                 raise Exception("Not possible!")
 
 
-class ExternalIssues(GitHubCommand):
+class GitHubIssues(GitHubCommand):
     """
-    Find issues opened by non-org users
+    Find issues, e.g. opened by non-org users
     """
 
-    NAME = "external-issues"
+    NAME = "issues"
 
     def __init__(self, sub_parsers):
-        super(ExternalIssues, self).__init__(sub_parsers)
+        super(GitHubIssues, self).__init__(sub_parsers)
 
         self.parser.add_argument(
             '--no-labels', action="store_true", default=False,
@@ -3007,8 +3007,17 @@ class ExternalIssues(GitHubCommand):
             'orgs', nargs="+",
             help="organizations that should be checked")
 
+        # To org or not to org
+        membership = self.parser.add_mutually_exclusive_group(required=False)
+        membership.add_argument(
+            '--external', action="store_true", default=None, dest="external",
+            help="limit issues to non-org users")
+        membership.add_argument(
+            '--internal', action="store_false", default=None, dest="external",
+            help="limit issues to org users")
+
     def __call__(self, args):
-        super(ExternalIssues, self).__call__(args)
+        super(GitHubIssues, self).__call__(args)
         self.login(args)
         for org in args.orgs:
             query = "is:open"
@@ -3018,8 +3027,15 @@ class ExternalIssues(GitHubCommand):
             if args.no_labels:
                 query += " no:label"
             org = self.gh.get_organization(org)
-            for m in org.get_members():
-                query += " -author:%s" % m.login
+            if args.external is None:
+                # load all
+                pass
+            elif args.external:
+                for m in org.get_members():
+                    query += " -author:%s" % m.login
+            else:
+                for m in org.get_members():
+                    query += " author:%s" % m.login
 
             if not args.by_date:
                 issues = []
