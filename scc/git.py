@@ -2189,7 +2189,7 @@ def get_default_filters(default):
     filters = {}
     if default == "org":
         filters["include"] = {
-            "user": ["#org"], "label": ["include"]}
+            "user": ["#org"], "label": ["include", "dependencies"]}
         filters["exclude"] = {"label": ["exclude", "breaking"]}
     elif default == "none":
         filters["include"] = {}
@@ -2227,8 +2227,9 @@ label filter."""
             '--default', '-D', type=str,
             choices=["none", "org", "all"], default="org",
             help="""Specify the default set of filters to use. NONE means no \
-filter is preset. ORG sets user:#org, label:include as the default include \
-filters and label:exclude and label:breaking as the default exclude filets. \
+filter is preset. \
+ORG sets user:#org, label:include, label:dependencies as the default include \
+filters and label:exclude and label:breaking as the default exclude filters. \
 ALL sets user:#all as the default include filter. Default: ORG.""")
         self.parser.add_argument(
             '--include', '-I', type=str, action='append',
