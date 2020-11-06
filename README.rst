@@ -1,8 +1,11 @@
+.. image:: https://github.com/ome/scc/workflows/tox/badge.svg
+    :target: https://github.com/ome/scc/actions
+
+.. image:: https://badge.fury.io/py/scc.svg
+    :target: https://badge.fury.io/py/scc
+
 SCC
 ===
-
-|Build Status|
-|Pypi|
 
 Introduction
 ------------
@@ -110,8 +113,3 @@ Copyright
 .. _snoopys-sandbox-2: https://github.com/ome/snoopys-sandbox-2
 .. _Travis: https://travis-ci.org/ome/scc
 
-.. |Build Status| image:: https://travis-ci.org/ome/scc.png
-   :target: https://travis-ci.org/ome/scc
-
-.. |Pypi| image:: https://badge.fury.io/py/scc.svg
-    :target: https://badge.fury.io/py/scc
