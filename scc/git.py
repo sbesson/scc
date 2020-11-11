@@ -766,8 +766,10 @@ class GitHubRepository(object):
             self.repo = gh.get_repo(user_name + '/' + repo_name)
             if self.repo.organization:
                 self.org = gh.get_organization(self.repo.organization.login)
+                self.org_members = [x.login for x in self.org.get_members()]
             else:
                 self.org = None
+                self.org_members = None
         except Exception:
             self.log.error("Failed to find %s/%s", user_name, repo_name)
             raise
@@ -832,7 +834,7 @@ class GitHubRepository(object):
 
         if "#org" in whitelist:
             # Whitelist all public members of the organization
-            if self.org and self.org.has_in_members(user):
+            if self.org and user.login in self.org_members:
                 return True
             # Whitelist the owner of a non-organization repository
             elif not self.org and user.login == self.get_owner():
