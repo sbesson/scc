@@ -52,6 +52,12 @@ class TestGithubRepository(MoxTestBase):
         self.repo.owner = self.user
         self.repo.organization = None
 
+        self.member1 = self.mox.CreateMock(NamedUser)
+        self.member1.login = 'member1'
+        self.member2 = self.mox.CreateMock(NamedUser)
+        self.member2.login = 'member2'
+        self.members = [self.member1, self.member2, self.user]
+
         self.pulls = []
         self.milestones = []
         self.gh.get_repo(
@@ -80,6 +86,7 @@ class TestGithubRepository(MoxTestBase):
     def setup_org(self):
         self.repo.organization = self.org
         self.gh.get_organization(self.org.login).AndReturn(self.org)
+        self.org.get_members().AndReturn(self.members)
 
     def setup_repo(self):
         self.mox.ReplayAll()
@@ -175,8 +182,6 @@ class TestGithubRepository(MoxTestBase):
         user.login = 'test'
         if with_org:
             self.setup_org()
-        if whitelist and with_org and "#org" in whitelist:
-            self.org.has_in_members(user).AndReturn(True)
         self.setup_repo()
 
         assert self.gh_repo.is_whitelisted(user, whitelist)
@@ -185,10 +190,8 @@ class TestGithubRepository(MoxTestBase):
         'whitelist', [["#all", "#org"], ["#org"], ["#org", "test2"]])
     def test_org_whitelist(self, whitelist):
         user = self.mox.CreateMock(NamedUser)
-        user.login = 'test'
+        user.login = 'member1'
         self.setup_org()
-        if "#org" in whitelist and "#all" not in whitelist:
-            self.org.has_in_members(user).AndReturn(True)
         self.setup_repo()
 
         assert self.gh_repo.is_whitelisted(user, whitelist)
@@ -201,8 +204,6 @@ class TestGithubRepository(MoxTestBase):
         user.login = 'test'
         if with_org:
             self.setup_org()
-        if whitelist and with_org and "#org" in whitelist:
-            self.org.has_in_members(user).AndReturn(False)
         self.setup_repo()
 
         assert not self.gh_repo.is_whitelisted(user, whitelist)
