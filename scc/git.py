@@ -981,27 +981,28 @@ class GitHubRepository(object):
         return True, None
 
     def run_status_filter(self, pullrequest, filters):
-
         if ("status" not in filters or filters["status"] == "none" or
                 self.repo.private is True):
             return True, None
 
-        status = pullrequest.get_last_status("base")
-        if status is None:
-            # If no status on the base repo, fallback on the head repo
-            status = pullrequest.get_last_status("head")
+        def check_status(state, term):
+            if term == "success-only":
+                return state == "success" or state == "skipped"
+            if term == "no-error":
+                return state not in ["error", "failure"]
+            return True
 
-        if status is None:
-            state = ""
-        else:
-            state = status.state
+        check_suites = pullrequest.get_last_commit().get_check_suites()
+        if check_suites.totalCount > 0:
+            for suite in check_suites:
+                if not check_status(suite.conclusion, filters["status"]):
+                    return False, "state: %s" % suite.conclusion
 
-        exclude_1 = (filters["status"] == "success-only") and \
-            (state != "success")
-        exclude_2 = (filters["status"] == "no-error") and \
-            (state in ["error", "failure"])
-        if exclude_1 or exclude_2:
-            return False, "status: %s" % state
+        statuses = pullrequest.get_last_commit().get_statuses()
+        if statuses.totalCount > 0:
+            status = pullrequest.get_last_commit().get_combined_status()
+            if not check_status(status.state, filters["status"]):
+                return False, "state: %s" % status.state
 
         return True, None
 
