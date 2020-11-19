@@ -1,4 +1,4 @@
-.. image:: https://github.com/ome/scc/workflows/tox/badge.svg
+.. image:: https://github.com/ome/scc/workflows/Tox/badge.svg
     :target: https://github.com/ome/scc/actions
 
 .. image:: https://badge.fury.io/py/scc.svg
