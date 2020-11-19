@@ -181,26 +181,28 @@ class TestPullRequest(MoxTestBase):
         self.mox.ReplayAll()
         assert self.pr.get_comments() == []
 
-    @pytest.mark.parametrize('org_users', [[True, False, True]])
-    def test_get_comments_whitelist(self, org_users):
+    def test_get_comments_whitelist(self):
         org = self.mox.CreateMock(Organization)
         self.create_issue()
-        self.issue.get_comments().AndReturn(self.comments)
 
-        comments = []
-        for is_org_user in org_users:
-            user = self.mox.CreateMock(NamedUser)
-            org.has_in_members(user).AndReturn(is_org_user)
-            self.create_issue_comment("mock-comment-%s" % is_org_user,
+        member1 = self.mox.CreateMock(NamedUser)
+        member1.login = 'member1'
+        member2 = self.mox.CreateMock(NamedUser)
+        member2.login = 'member2'
+        nonmember = self.mox.CreateMock(NamedUser)
+        nonmember.login = 'test'
+        org_members = ['member1', 'member2']
+
+        for user in [member1, nonmember, member2]:
+            self.create_issue_comment("mock-comment-%s" % user.login,
                                       user=user)
-            if is_org_user:
-                comments.append("mock-comment-%s" % is_org_user)
-
+        self.issue.get_comments().AndReturn(self.comments)
         self.mox.ReplayAll()
 
-        def org_whitelist(x):
-            return org.has_in_members(x.user)
-        assert self.pr.get_comments(whitelist=org_whitelist) == comments
+        assert self.pr.get_comments() == [x.body for x in self.comments]
+        assert (self.pr.get_comments(
+            whitelist=lambda x: x.user.login in org_members) ==
+            [x.body for x in self.comments if x.user.login in org_members])
 
     def test_create_issue_comment(self):
         comment = self.mox.CreateMock(IssueComment)
