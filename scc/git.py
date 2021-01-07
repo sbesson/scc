@@ -994,7 +994,9 @@ class GitHubRepository(object):
                 return state not in ["error", "failure"]
             return True
 
-        check_suites = pullrequest.get_last_commit().get_check_suites()
+        # Only consider check suites created by the GitHub actions app (15368)
+        check_suites = pullrequest.get_last_commit().get_check_suites(
+            app_id=15368)
         if check_suites.totalCount > 0:
             for suite in check_suites:
                 if not check_status(suite.conclusion, filters["status"]):
