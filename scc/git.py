@@ -51,8 +51,8 @@ github_loaded = True
 try:
     import github  # PyGithub
     try:
-        github.GithubException(0, "test")
-    except AttributeError:
+        from github import GithubException
+    except ImportError:
         print("Conflicting github module. Uninstall PyGithub3",
               file=sys.stderr)
         github_loaded = False
