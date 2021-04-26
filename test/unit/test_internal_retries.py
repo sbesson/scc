@@ -111,8 +111,8 @@ class TestInternalRetries(MoxTestBase):
         self.gh_manager.login_or_token = "mock"
 
         # Define errors to test
-        self.server_error = GithubException(502, 'Server Error')
-        self.no_retry_exception = GithubException(-1, 'No retry')
+        self.server_error = GithubException(502, 'Server Error', None)
+        self.no_retry_exception = GithubException(-1, 'No retry', None)
         self.socket_timeout = socket.timeout()
         self.ssl_error = SSLError()
 
